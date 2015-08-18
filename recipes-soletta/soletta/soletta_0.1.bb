@@ -72,6 +72,8 @@ INHIBIT_DEFAULT_DEPS = "1"
 B = "${WORKDIR}/git"
 
 do_configure_prepend() {
+   export TARGETCC="${CC}"
+   export TARGETAR="${AR}"
    #Depending in what features are enabled, We must change some configurations.
    if [ "${@bb.utils.contains('DISTRO_FEATURES', 'systemd', 'systemd', '', d)}" = "systemd" ]; then
       echo "HAVE_SYSTEMD=y" >> ${WORKDIR}/config
