@@ -1,11 +1,11 @@
 DESCRIPTION = "Soletta Development Application"
 DEPENDS = "soletta nodejs systemd graphviz git"
 LICENSE = "BSD-3-Clause"
-PV = "1_beta3"
+PV = "1_beta4"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=dbf9699ab0f60ec50f52ce70fcd07caf"
-SRC_URI[archive.md5sum] = "769c98ee5cf36c234263aad4d3b4743b"
-SRC_URI[archive.sha256sum] = "5bb2be0d9b5e216628d4311bd9277c435058a0b1862e7f17e703002afb105bd6"
+SRC_URI[archive.md5sum] = "8e1221c54d3addee4be096fcc73d0077"
+SRC_URI[archive.sha256sum] = "4e656476065af32f28d2b0692a741777022fb3f595259358e30117ca4ec568e4"
 SRC_URI = "https://github.com/solettaproject/soletta-dev-app/releases/download/v${PV}/soletta-dev-app_standalone_v${PV}.tar.gz;name=archive \
            file://soletta-dev-app.service \
            file://soletta-dev-app-mac.sh \
