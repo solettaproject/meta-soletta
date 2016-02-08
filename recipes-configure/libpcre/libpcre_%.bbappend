@@ -4,6 +4,6 @@
 # by Soletta's string node types.
 
 EXTRA_OECONF += "\
-    --enable-utf8 \
+    --enable-utf \
     --enable-unicode-properties \
 "
