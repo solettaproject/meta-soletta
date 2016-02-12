@@ -9,8 +9,8 @@ LICENSE = "BSD"
 LIC_FILES_CHKSUM = "file://COPYING;md5=53eeaddf328b23e2355816e257450eaa"
 PV = "1_beta14+git${SRCPV}"
 
-SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git"
-SRCREV = "92e554152ef71b28efec142b8ef498701ceea5d9"
+SRC_URI = "gitsm://github.com/mbelluzzo/soletta.git;protocol=git"
+SRCREV = "1a0d35c067e380e4b37abcbf6c0f7670b2fd1876"
 
 S = "${WORKDIR}/git"
 
