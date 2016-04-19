@@ -12,6 +12,7 @@ PV = "1_beta18+git${SRCPV}"
 
 SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
            file://run-ptest \
+           file://0001-oic-gen-fix-rep_vec-issue.patch \
           "
 SRCREV = "97091af414193c37278ba5ff88c70c596eecd7ea"
 
