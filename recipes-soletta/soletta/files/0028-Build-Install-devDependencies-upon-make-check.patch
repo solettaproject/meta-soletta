@@ -1,0 +1,38 @@
+From 13fe5d1a4c93fe065e6e3d0cd9cbb555663aa7e3 Mon Sep 17 00:00:00 2001
+From: Gabriel Schulhof <gabriel.schulhof@intel.com>
+Date: Wed, 20 Apr 2016 18:15:28 +0300
+Subject: [PATCH 03/10] Build: Install devDependencies upon make check
+
+Closes gh-1916
+
+Signed-off-by: Gabriel Schulhof <gabriel.schulhof@intel.com>
+---
+ tools/build/Makefile.targets | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/tools/build/Makefile.targets b/tools/build/Makefile.targets
+index 51393d8..93b8acb 100644
+--- a/tools/build/Makefile.targets
++++ b/tools/build/Makefile.targets
+@@ -220,7 +220,7 @@ bindings-nodejs: $(SOL_LIB_OUTPUT)
+ 	$(Q) mkdir -p $(build_nodejs_bindingsdir)
+ 	$(Q) cp -a *js package.json $(build_nodejs_bindingsdir)
+ 	$(Q) mkdir -p $(build_nodejs_bindingsdir)/build
+-	$(Q) cp $$(find build -type f -name soletta.node | head -n 1) \
++	$(Q) cp $$(find build -type f -name soletta.node | grep -v 'soletta_sysroot' | head -n 1) \
+ 		$(build_nodejs_bindingsdir)/build
+ 	$(Q) mkdir -p $(build_nodejs_bindingsdir)/node_modules
+ 	$(Q) cp -a ./node_modules/* $(build_nodejs_bindingsdir)/node_modules
+@@ -228,7 +228,8 @@ bindings-nodejs: $(SOL_LIB_OUTPUT)
+ PHONY += bindings-nodejs
+ 
+ check-bindings-nodejs: bindings-nodejs
+-	node $(NODEJS_ROOT)/tests/suite.js --ldPreload="$(LIB_ASAN_PATH)"
++	$(Q) $(NODEJS_NPM) install --ignore-scripts
++	$(Q) $(NODEJS) $(NODEJS_ROOT)/tests/suite.js --ldPreload="$(LIB_ASAN_PATH)"
+ PHONY += check-bindings-nodejs
+ 
+ endif #neq($(USE_NODEJS),)
+-- 
+1.9.1
+

@@ -13,6 +13,8 @@ PV = "1_beta18+git${SRCPV}"
 SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
            file://run-ptest \
            file://0013-lib-sol-iio-release-buffer-on-sol_iio_close.patch \
+           file://0027-Node.js-bindings-Add-the-JS-APIs-to-the-root-and-the.patch \
+           file://0028-Build-Install-devDependencies-upon-make-check.patch \
            file://0047-oic-gen-fix-rep_vec-issue.patch \
            file://0048-oic-gen-ReadOnly-props-from-imported-json-objs-were-.patch \
            file://0049-oic-gen-Don-t-add-client-to_repr_vec-when-all-props-.patch \
