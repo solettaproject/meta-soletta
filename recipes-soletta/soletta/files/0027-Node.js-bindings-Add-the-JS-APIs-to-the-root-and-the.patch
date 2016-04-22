@@ -1,0 +1,113 @@
+From a259e48e8845a75cc8fb9723c3e3254828ac107f Mon Sep 17 00:00:00 2001
+From: Gabriel Schulhof <gabriel.schulhof@intel.com>
+Date: Tue, 12 Apr 2016 10:11:04 +0300
+Subject: [PATCH 27/50] Node.js bindings: Add the JS APIs to the root and the
+ package to the sysroot
+
+Fixes gh-1826
+Closes gh-1875
+
+Signed-off-by: Gabriel Schulhof <gabriel.schulhof@intel.com>
+---
+ binding.gyp                  | 17 ++++++++++++++++-
+ package.json                 |  2 +-
+ tools/build/Makefile.targets | 10 +++++++++-
+ tools/build/Makefile.vars    |  1 +
+ 4 files changed, 27 insertions(+), 3 deletions(-)
+
+diff --git a/binding.gyp b/binding.gyp
+index 28357e5..7722a6f 100644
+--- a/binding.gyp
++++ b/binding.gyp
+@@ -38,6 +38,21 @@
+ 					} ]
+ 				},
+ 				{
++					"target_name": "copyapis",
++					"type": "none",
++					"actions": [ {
++						"action_name": "copyapis",
++						"message": "Copying JS APIs",
++						"inputs": [ "./bindings/nodejs/lib" ],
++						"outputs": [ "" ],
++						"action": [
++							"sh",
++							"-c",
++							"cp -a ./bindings/nodejs/lib/* ."
++						]
++					} ]
++				},
++				{
+ 					"target_name": "soletta",
+ 					"includes": [
+ 						"bindings/nodejs/generated/nodejs-bindings-sources.gyp"
+@@ -50,7 +65,7 @@
+ 						"OTHER_CFLAGS": [ '<!@(echo "${SOLETTA_CFLAGS}")' ]
+ 					},
+ 					"libraries": [ '<!@(echo "${SOLETTA_LIBS}")' ],
+-					"dependencies": [ "collectbindings" ]
++					"dependencies": [ "collectbindings", "copyapis" ]
+ 				}
+ 			]
+ 		} ]
+diff --git a/package.json b/package.json
+index 3cde925..a249841 100644
+--- a/package.json
++++ b/package.json
+@@ -27,12 +27,12 @@
+   "homepage": "https://github.com/solettaproject/soletta#readme",
+   "dependencies": {
+     "bindings": "^1.2.1",
++    "lodash": "^4.3.0",
+     "nan": "^2.1.0"
+   },
+   "devDependencies": {
+     "async": "^1.5.2",
+     "glob": "^6.0.4",
+-    "lodash": "^4.3.0",
+     "qunitjs": "^1.21.0",
+     "uuid": "^2.0.1",
+     "yargs": "^4.2.0"
+diff --git a/tools/build/Makefile.targets b/tools/build/Makefile.targets
+index 073294f..c3004eb 100644
+--- a/tools/build/Makefile.targets
++++ b/tools/build/Makefile.targets
+@@ -200,7 +200,7 @@ bins-out += bindings-nodejs
+ NODE_GYP ?= $(NODE_GYP_PATH)/node-gyp
+ 
+ bindings-nodejs: $(SOL_LIB_OUTPUT)
+-	$(Q) $(NODEJS_NPM) install --ignore-scripts
++	$(Q) $(NODEJS_NPM) install --ignore-scripts --production
+ 
+ 	$(Q) \
+ 		SOL_CONFIG_OIC=$(OIC) \
+@@ -216,6 +216,14 @@ bindings-nodejs: $(SOL_LIB_OUTPUT)
+ 		export SOLETTA_LIBS="$(FIND_LIBRARY_LDFLAGS)"; \
+ 			$(NODE_GYP) configure && $(NODE_GYP) build )
+ 
++	$(Q) mkdir -p $(build_nodejs_bindingsdir)
++	$(Q) cp -a *js package.json $(build_nodejs_bindingsdir)
++	$(Q) mkdir -p $(build_nodejs_bindingsdir)/build
++	$(Q) cp $$(find build -type f -name soletta.node | head -n 1) \
++		$(build_nodejs_bindingsdir)/build
++	$(Q) mkdir -p $(build_nodejs_bindingsdir)/node_modules
++	$(Q) cp -a ./node_modules/* $(build_nodejs_bindingsdir)/node_modules
++
+ PHONY += bindings-nodejs
+ 
+ check-bindings-nodejs: bindings-nodejs
+diff --git a/tools/build/Makefile.vars b/tools/build/Makefile.vars
+index 6eebeac..1f687ba 100644
+--- a/tools/build/Makefile.vars
++++ b/tools/build/Makefile.vars
+@@ -144,6 +144,7 @@ build_datadir := $(build_sysroot)$(SOL_DATADIR)
+ build_flowdatadir := $(build_sysroot)$(SOL_FLOW_DATADIR)
+ build_gdbautoload := $(build_sysroot)$(DATADIR)gdb/auto-load/
+ build_docdir := $(build_stagedir)doc/
++build_nodejs_bindingsdir := $(build_libdir)/node_modules/soletta/
+ 
+ PACKAGE_DOCNAME := soletta-$(VERSION)-doc
+ build_doxygendir := $(build_docdir)doxygen/
+-- 
+1.9.1
+
