@@ -33,6 +33,9 @@ PACKAGES = " \
          ${PN} \
 "
 
+PACKAGECONFIG ??= "x11"
+PACKAGECONFIG[x11] = ",,cairo atk gtk+3 gdk-pixbuf pango,"
+
 FILES_${PN}-staticdev = " \
                       ${libdir}/libsoletta.a \
 "
