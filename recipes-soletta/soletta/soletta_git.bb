@@ -24,33 +24,24 @@ inherit cml1 python3native
 PACKAGECONFIG ??= "${@bb.utils.contains('DISTRO_FEATURES','x11', 'x11', '', d)}"
 PACKAGECONFIG[x11] = ",,cairo atk gtk+3 gdk-pixbuf pango,"
 
-PACKAGES = " \
-         ${PN}-staticdev \
+PACKAGES =+ " \
          ${PN}-nodejs \
          ${PN}-flow-gtk \
-         ${PN}-dev \
-         ${PN}-dbg \
-         ${PN} \
 "
 
-FILES_${PN}-staticdev = " \
-                      ${libdir}/libsoletta.a \
+FILES_${PN}-dbg += " \
+                  ${datadir}/gdb \
 "
 
-FILES_${PN}-dbg = " \
-                 ${datadir}/gdb \
-"
-
+# Intentionally overwrite the -dev default, because /usr/lib/libsoletta.so must not be
+# in the -dev package: it is not a symlink, but the real thing that non-dev binaries
+# link against.
 FILES_${PN}-dev = " \
-                ${datadir}/soletta/* \
+                ${bindir}/sol-fbp-generator \
+                ${bindir}/sol-fbp-to-dot \
+                ${bindir}/sol-*.py \
                 ${includedir}/soletta/* \
                 ${libdir}/pkgconfig/soletta.pc \
-                ${libdir}/soletta/modules/flow/* \
-                ${libdir}/soletta/modules/update/* \
-                ${libdir}/soletta/modules/pin-mux/* \
-                ${libdir}/soletta/modules/linux-micro/* \
-                ${libdir}/soletta/modules/flow-metatype/* \
-                ${sysconfdir}/modules-load.d/* \
 "
 
 ALLOW_EMPTY_${PN}-flow-gtk = "1"
@@ -60,9 +51,12 @@ FILES_${PN}-flow-gtk = " \
 "
 
 FILES_${PN} = " \
-            ${bindir}/sol* \
+            ${bindir}/sol-fbp-runner \
             ${libdir}/libsoletta.so* \
             ${libdir}/soletta/soletta-image-hash \
+            ${libdir}/soletta/modules \
+            ${sysconfdir}/modules-load.d \
+            ${datadir}/soletta \
 "
 
 FILES_${PN}-nodejs = " \
@@ -83,13 +77,6 @@ RDEPENDS_${PN} = " \
              chrpath \
              libpcre \
 "
-
-# do_package_qa tells soletta rdepends on soletta-dev
-# maybe an non-obvious implicit rule implied by yocto
-INSANE_SKIP_${PN} += "dev-deps file-rdeps"
-INSANE_SKIP_${PN}-dev += "dev-elf"
-INHIBIT_PACKAGE_STRIP = "1"
-INHIBIT_DEFAULT_DEPS = "1"
 
 B = "${WORKDIR}/git"
 
@@ -197,3 +184,6 @@ do_install_ptest () {
         cp -f ${S}/tools/run-fbp-tests ${D}/${PTEST_PATH}
 
 }
+
+# /usr/lib/soletta/ptest/run-ptest is a bash script.
+RDEPENDS_soletta-ptest += "bash"
