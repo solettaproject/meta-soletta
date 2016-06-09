@@ -33,16 +33,15 @@ FILES_${PN}-dbg += " \
                   ${datadir}/gdb \
 "
 
-FILES_${PN}-dev_append = " \
-                ${datadir}/soletta/* \
+# Intentionally overwrite the -dev default, because /usr/lib/libsoletta.so must not be
+# in the -dev package: it is not a symlink, but the real thing that non-dev binaries
+# link against.
+FILES_${PN}-dev = " \
+                ${bindir}/sol-fbp-generator \
+                ${bindir}/sol-fbp-to-dot \
+                ${bindir}/sol-*.py \
                 ${includedir}/soletta/* \
                 ${libdir}/pkgconfig/soletta.pc \
-                ${libdir}/soletta/modules/flow/* \
-                ${libdir}/soletta/modules/update/* \
-                ${libdir}/soletta/modules/pin-mux/* \
-                ${libdir}/soletta/modules/linux-micro/* \
-                ${libdir}/soletta/modules/flow-metatype/* \
-                ${sysconfdir}/modules-load.d/* \
 "
 
 ALLOW_EMPTY_${PN}-flow-gtk = "1"
@@ -50,18 +49,19 @@ FILES_${PN}-flow-gtk = " \
                 ${libdir}/soletta/modules/flow/gtk.so \
                 ${datadir}/soletta/flow/descriptions/gtk.json \
 "
-INSANE_SKIP_${PN}-flow-gtk += "dev-deps"
 
 FILES_${PN} = " \
-            ${bindir}/sol* \
+            ${bindir}/sol-fbp-runner \
             ${libdir}/libsoletta.so* \
             ${libdir}/soletta/soletta-image-hash \
+            ${libdir}/soletta/modules \
+            ${sysconfdir}/modules-load.d \
+            ${datadir}/soletta \
 "
 
 FILES_${PN}-nodejs = " \
                    ${libdir}/node_modules/soletta \
 "
-INSANE_SKIP_${PN}-nodejs += "dev-deps"
 
 # Setup what PACKAGES should be installed by default.
 # If a package should not being installed, use BAD_RECOMMENDS.
@@ -77,11 +77,6 @@ RDEPENDS_${PN} = " \
              chrpath \
              libpcre \
 "
-
-# do_package_qa tells soletta rdepends on soletta-dev
-# maybe an non-obvious implicit rule implied by yocto
-INSANE_SKIP_${PN} += "dev-deps file-rdeps"
-INSANE_SKIP_${PN}-dev += "dev-elf"
 
 B = "${WORKDIR}/git"
 
@@ -190,4 +185,5 @@ do_install_ptest () {
 
 }
 
-INSANE_SKIP_${PN}-ptest += "dev-deps"
+# /usr/lib/soletta/ptest/run-ptest is a bash script.
+RDEPENDS_soletta-ptest += "bash"
