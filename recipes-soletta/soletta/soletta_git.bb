@@ -12,6 +12,7 @@ PV = "1_beta20+git${SRCPV}"
 
 SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
            file://run-ptest \
+           file://0001-Disable-regex-module-by-default.patch \
            file://i2c-dev.conf \
            file://iio-trig-sysfs.conf \
           "

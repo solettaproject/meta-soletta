@@ -1,0 +1,212 @@
+From 9cff12c9027856f5ef4876dbd2ff3903f74d4f03 Mon Sep 17 00:00:00 2001
+From: Bruno Dilly <bruno.dilly@intel.com>
+Date: Thu, 21 Jul 2016 18:43:46 -0300
+Subject: [PATCH] Disable regex module by default
+
+Libpcre may be built with some flags that don't work
+fine with Soletta.
+
+Drop tests for this module as well.
+
+Signed-off-by: Bruno Dilly <bruno.dilly@intel.com>
+---
+ src/modules/flow/regexp/Kconfig             |  2 +-
+ src/test-fbp/string-pcre-regexp-replace.fbp | 67 --------------------
+ src/test-fbp/string-pcre-regexp-search.fbp  | 98 -----------------------------
+ 3 files changed, 1 insertion(+), 166 deletions(-)
+ delete mode 100644 src/test-fbp/string-pcre-regexp-replace.fbp
+ delete mode 100644 src/test-fbp/string-pcre-regexp-search.fbp
+
+diff --git a/src/modules/flow/regexp/Kconfig b/src/modules/flow/regexp/Kconfig
+index e8b8771..c063daa 100644
+--- a/src/modules/flow/regexp/Kconfig
++++ b/src/modules/flow/regexp/Kconfig
+@@ -1,7 +1,7 @@
+ config FLOW_NODE_TYPE_REGEXP
+ 	tristate "Node type: regexp"
+         depends on HAVE_LIBPCRE
+-	default y
++	default n
+ 	help
+ 		The regexp (regular expressions) family of nodes
+ 		provides regular expression facilities on your flow,
+diff --git a/src/test-fbp/string-pcre-regexp-replace.fbp b/src/test-fbp/string-pcre-regexp-replace.fbp
+deleted file mode 100644
+index d533ba7..0000000
+--- a/src/test-fbp/string-pcre-regexp-replace.fbp
++++ /dev/null
+@@ -1,67 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-str_hello_world(constant/string:value="Ħěĺļō Ɯőŗŀď")
+-str_double_hello_world(constant/string:value="Ħěĺļō Ɯőŗŀď Ħěĺļō Ɯőŗŀď")
+-str_substitute(constant/string:value="substitute")
+-
+-result_hello_world(constant/string:value="Hello World")
+-result_hello_star(constant/string:value="Ħěĺļō ★")
+-result_substitute_3(constant/string:value="subs★i★u★e")
+-result_substitute_1(constant/string:value="subs★itute")
+-result_kk(constant/string:value="K K")
+-
+-str_err(constant/string:value="Fail on matching regular expression 'no_possible_match' on string Ħěĺļō Ɯőŗŀď")
+-
+-str_hello_world OUT -> IN regexp_replace_01(string/regexp-replace:regexp="(\\p{L}+)\\s(\\p{L}+)",to="Hello World")
+-regexp_replace_01 OUT -> IN[0] cmp_01(string/compare)
+-result_hello_world OUT -> IN[1] cmp_01
+-cmp_01 EQUAL -> RESULT result_01(test/result)
+-
+-str_substitute OUT -> IN regexp_replace_02(string/regexp-replace:regexp="t",to="★")
+-regexp_replace_02 OUT -> IN[0] cmp_02(string/compare)
+-result_substitute_3 OUT -> IN[1] cmp_02
+-cmp_02 EQUAL -> RESULT result_02(test/result)
+-
+-str_substitute OUT -> IN regexp_replace_03(string/regexp-replace:regexp="t",to="★",max_regexp_replace=1)
+-regexp_replace_03 OUT -> IN[0] cmp_03(string/compare)
+-result_substitute_1 OUT -> IN[1] cmp_03
+-cmp_03 EQUAL -> RESULT result_03(test/result)
+-
+-str_double_hello_world OUT -> IN regexp_replace_04(string/regexp-replace:regexp="(\\p{L}+)\\s(\\p{L}+)",to="K",max_regexp_replace=0)
+-regexp_replace_04 OUT -> IN[0] cmp_04(string/compare)
+-result_kk OUT -> IN[1] cmp_04
+-cmp_04 EQUAL -> RESULT result_04(test/result)
+-
+-str_hello_world OUT -> IN regexp_replace_05(string/regexp-replace:regexp="(\\p{L}+)\\s(\\p{L}+)",to="\\1 ★")
+-regexp_replace_05 OUT -> IN[0] cmp_05(string/compare)
+-result_hello_star OUT -> IN[1] cmp_05
+-cmp_05 EQUAL -> RESULT result_05(test/result)
+-
+-str_hello_world OUT -> IN regexp_replace_06(string/regexp-replace:regexp="(\\p{L}+)\\s(\\p{L}+)",to="\\g1 ★")
+-regexp_replace_06 OUT -> IN[0] cmp_06(string/compare)
+-result_hello_star OUT -> IN[1] cmp_06
+-cmp_06 EQUAL -> RESULT result_06(test/result)
+-
+-str_hello_world OUT -> IN regexp_replace_07(string/regexp-replace:regexp="no_possible_match",to="whatever")
+-regexp_replace_07 OUT -> IN[0] cmp_07(string/compare)
+-str_hello_world OUT -> IN[1] cmp_07
+-cmp_07 EQUAL -> RESULT result_07(test/result)
+-
+-str_hello_world OUT -> IN regexp_replace_08(string/regexp-replace:regexp="no_possible_match",to="whatever",forward_on_no_match=false)
+-regexp_replace_08 ERROR -> IN _(converter/error) MESSAGE -> IN[0] cmp_08(string/compare)
+-str_err OUT -> IN[1] cmp_08
+-cmp_08 EQUAL -> RESULT result_08(test/result)
+diff --git a/src/test-fbp/string-pcre-regexp-search.fbp b/src/test-fbp/string-pcre-regexp-search.fbp
+deleted file mode 100644
+index 058690e..0000000
+--- a/src/test-fbp/string-pcre-regexp-search.fbp
++++ /dev/null
+@@ -1,98 +0,0 @@
+-# This file is part of the Soletta (TM) Project
+-#
+-# Copyright (C) 2015 Intel Corporation. All rights reserved.
+-#
+-# Licensed under the Apache License, Version 2.0 (the "License");
+-# you may not use this file except in compliance with the License.
+-# You may obtain a copy of the License at
+-#
+-#     http://www.apache.org/licenses/LICENSE-2.0
+-#
+-# Unless required by applicable law or agreed to in writing, software
+-# distributed under the License is distributed on an "AS IS" BASIS,
+-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+-# See the License for the specific language governing permissions and
+-# limitations under the License.
+-
+-str_hello_world(constant/string:value="Ħěĺļō Ɯőŗŀď")
+-str_hello_hello(constant/string:value="Ħěĺļō Ħěĺļō")
+-
+-result_hello(constant/string:value="Ħěĺļō")
+-result_world(constant/string:value="Ɯőŗŀď")
+-result_hello_world(constant/string:value="Ħěĺļō Ɯőŗŀď")
+-
+-str_hello_world OUT -> IN regexp_search_01(string/regexp-search:regexp="Ɯőŗŀď",index=0)
+-regexp_search_01 OUT -> IN[0] cmp_01(string/compare)
+-result_world OUT -> IN[1] cmp_01
+-cmp_01 EQUAL -> RESULT result_01(test/result)
+-
+-str_hello_world OUT -> IN regexp_search_02(string/regexp-search:regexp="Ħ...ō",index=0)
+-regexp_search_02 OUT -> IN[0] cmp_02(string/compare)
+-result_hello OUT -> IN[1] cmp_02
+-cmp_02 EQUAL -> RESULT result_02(test/result)
+-
+-str_hello_world OUT -> IN regexp_search_03(string/regexp-search:regexp="Ɯőŗŀď$",index=0)
+-regexp_search_03 OUT -> IN[0] cmp_03(string/compare)
+-result_world OUT -> IN[1] cmp_03
+-cmp_03 EQUAL -> RESULT result_03(test/result)
+-
+-str_hello_world OUT -> IN regexp_search_04(string/regexp-search:regexp="Ɯőŗŀ[dďđ]$",index=0)
+-regexp_search_04 OUT -> IN[0] cmp_04(string/compare)
+-result_world OUT -> IN[1] cmp_04
+-cmp_04 EQUAL -> RESULT result_04(test/result)
+-
+-str_hello_world OUT -> IN regexp_search_05(string/regexp-search:regexp="(\\p{L}+)\\s(\\p{L}+)",index=0)
+-regexp_search_05 OUT -> IN[0] cmp_05(string/compare)
+-result_hello_world OUT -> IN[1] cmp_05
+-cmp_05 EQUAL -> RESULT result_05(test/result)
+-
+-str_hello_world OUT -> IN regexp_search_06(string/regexp-search:regexp="(\\p{L}+)\\s(\\p{L}+)",index=1)
+-regexp_search_06 OUT -> IN[0] cmp_06(string/compare)
+-result_hello OUT -> IN[1] cmp_06
+-cmp_06 EQUAL -> RESULT result_06(test/result)
+-
+-str_hello_hello OUT -> IN regexp_search_07(string/regexp-search:regexp="(\\p{L}\\p{L}\\p{L}\\p{L}\\p{L})\\s\\g1",index=0)
+-regexp_search_07 OUT -> IN[0] cmp_07(string/compare)
+-str_hello_hello OUT -> IN[1] cmp_07
+-cmp_07 EQUAL -> RESULT result_07(test/result)
+-
+-str_hello_hello OUT -> IN regexp_search_08(string/regexp-search:regexp="(\\p{L}\\p{L}\\p{L}\\p{L}\\p{L})\\s\\g{-1}",index=0)
+-regexp_search_08 OUT -> IN[0] cmp_08(string/compare)
+-str_hello_hello OUT -> IN[1] cmp_08
+-cmp_08 EQUAL -> RESULT result_08(test/result)
+-
+-str_hello_hello OUT -> IN regexp_search_09(string/regexp-search:regexp="(?<hello>\\p{L}\\p{L}\\p{L}\\p{L}\\p{L})\\s\\g{hello}",index=0)
+-regexp_search_09 OUT -> IN[0] cmp_09(string/compare)
+-str_hello_hello OUT -> IN[1] cmp_09
+-cmp_09 EQUAL -> RESULT result_09(test/result)
+-
+-str_hello_world OUT -> IN regexp_search_10(string/regexp-search:regexp="(\\p{L}{5})\\s(\\p{L}{5})",index=2)
+-regexp_search_10 OUT -> IN[0] cmp_10(string/compare)
+-result_world OUT -> IN[1] cmp_10
+-cmp_10 EQUAL -> RESULT result_10(test/result)
+-
+-_(string/uuid) OUT -> IN regexp_search_11(string/regexp-search:regexp="((?:[a-f]|[0-9]){8})((?:(?:[a-f]|[0-9]){4}){3})((?:[a-f]|[0-9]){12})")
+-regexp_search_11 LENGTH -> IN[0] cmp_11(int/equal)
+-_(constant/int:value=4) OUT -> IN[1] cmp_11
+-cmp_11 OUT -> RESULT result_11(test/result)
+-
+-_(string/uuid:with_hyphens=false) OUT -> IN regexp_search_12(string/regexp-search:regexp="((?:[a-f]|[0-9]){8})((?:(?:[a-f]|[0-9]){4}){3})((?:[a-f]|[0-9]){12})")
+-regexp_search_12 LENGTH -> IN[0] cmp_12(int/equal)
+-_(constant/int:value=4) OUT -> IN[1] cmp_12
+-cmp_12 OUT -> RESULT result_12(test/result)
+-
+-_(string/uuid:with_hyphens=true,upcase=true) OUT -> IN regexp_search_13(string/regexp-search:regexp="((?:[A-F]|[0-9]){8}-)((?:(?:[A-F]|[0-9]){4}-){3})((?:[A-F]|[0-9]){12})")
+-regexp_search_13 LENGTH -> IN[0] cmp_13(int/equal)
+-_(constant/int:value=4) OUT -> IN[1] cmp_13
+-cmp_13 OUT -> RESULT result_13(test/result)
+-
+-_(platform/machine-id) OUT -> IN regexp_search_14(string/regexp-search:regexp="((?:[a-f]|[0-9]){32})")
+-regexp_search_14 LENGTH -> IN[0] cmp_14(int/equal)
+-_(constant/int:value=2) OUT -> IN[1] cmp_14
+-cmp_14 OUT -> RESULT result_14(test/result)
+-
+-_(platform/machine-id) OUT -> IN regexp_replace_15(string/regexp-replace:regexp="((?:[a-f]|[0-9]){8})((?:(?:[a-f]|[0-9]){4}))((?:(?:[a-f]|[0-9]){4}))((?:(?:[a-f]|[0-9]){4}))((?:[a-f]|[0-9]){12})",to="\\1-\\2-\\3-\\4-\\5")
+-regexp_replace_15 OUT -> IN regexp_search_15(string/regexp-search:regexp="((?:[a-f]|[0-9]){8}-)((?:(?:[a-f]|[0-9]){4}-){3})((?:[a-f]|[0-9]){12})")
+-regexp_search_15 LENGTH -> IN[0] cmp_15(int/equal)
+-_(constant/int:value=4) OUT -> IN[1] cmp_15
+-cmp_15 OUT -> RESULT result_15(test/result)
+-- 
+2.4.11
+
