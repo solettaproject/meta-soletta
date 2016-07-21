@@ -8,14 +8,14 @@ DEPENDS = "glib-2.0 libpcre pkgconfig python3-jsonschema-native icu curl libmicr
 DEPENDS += " ${@bb.utils.contains('DISTRO_FEATURES','systemd','systemd','',d)}"
 LICENSE = "Apache-2.0"
 LIC_FILES_CHKSUM = "file://LICENSE;md5=93888867ace35ffec2c845ea90b2e16b"
-PV = "1_beta20+git${SRCPV}"
+PV = "1+git${SRCPV}"
 
 SRC_URI = "gitsm://github.com/solettaproject/soletta.git;protocol=git \
            file://run-ptest \
            file://i2c-dev.conf \
            file://iio-trig-sysfs.conf \
           "
-SRCREV = "dd5bc81d8d549915e7fc7d85c8ef67f276791c67"
+SRCREV = "516cf9448d87eec1decf65590e32547efb59dad6"
 
 S = "${WORKDIR}/git"
 
@@ -165,8 +165,8 @@ do_install() {
    export LIBDIR="${libdir}/"
    oe_runmake DESTDIR=${WORKDIR}/image install CFLAGS="--sysroot=${STAGING_DIR_TARGET}" TARGETCC="${CC}" TARGETAR="${AR}"
    unlink ${WORKDIR}/image/${libdir}/libsoletta.so
-   mv ${WORKDIR}/image/${libdir}/libsoletta.so.0.0.1 ${WORKDIR}/image/${libdir}/libsoletta.so
-   ln -sf libsoletta.so ${WORKDIR}/image/${libdir}/libsoletta.so.0.0.1
+   mv ${WORKDIR}/image/${libdir}/libsoletta.so.1.0.0 ${WORKDIR}/image/${libdir}/libsoletta.so
+   ln -sf libsoletta.so ${WORKDIR}/image/${libdir}/libsoletta.so.1.0.0
    COMMIT_ID=`git --git-dir=${WORKDIR}/git/.git rev-parse --verify HEAD`
    echo "Soletta: $COMMIT_ID" > ${D}/${libdir}/soletta/soletta-image-hash
 
