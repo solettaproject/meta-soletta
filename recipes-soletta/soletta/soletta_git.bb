@@ -12,6 +12,7 @@ PV = "1"
 
 SRC_URI = "https://github.com/solettaproject/soletta/releases/download/v${PV}/soletta.tar.gz;protocol=archive \
            file://run-ptest \
+           file://0001-Disable-regex-module-by-default.patch \
            file://i2c-dev.conf \
            file://iio-trig-sysfs.conf \
            file://0001-test-fbp-drop-tests-that-may-timeout.patch \
